@@ -1,26 +1,19 @@
 <!-- ============================================================
      Site settings > Custom code > Head code (below what's there).
-     Loaded in <head> so the search panel is hidden on first paint.
-     Replace OWNER/REPO and the tag.
+     Bump the tag on each release.
      ============================================================ -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/OWNER/REPO@v0.1.0/dist/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Coenmathijssen/democracyinaction@v0.1.0/dist/main.css">
 
 
 <!-- ============================================================
      Site settings > Custom code > Footer code (below the copyright-year script).
      Webflow's GSAP integration loads GSAP before this.
+     Module scripts have their own scope and run after the page is parsed.
      localStorage 'dia-dev' = '1' loads the Vite dev server instead.
      ============================================================ -->
-<script>
-  (() => {
-    const dev = localStorage.getItem('dia-dev') === '1'
-    const script = document.createElement('script')
-    if (dev) {
-      script.type = 'module'
-      script.src = 'http://localhost:5173/src/main.js'
-    } else {
-      script.src = 'https://cdn.jsdelivr.net/gh/OWNER/REPO@v0.1.0/dist/main.js'
-    }
-    document.body.appendChild(script)
-  })()
+<script type="module">
+  const release = 'https://cdn.jsdelivr.net/gh/Coenmathijssen/democracyinaction@v0.1.0/dist/main.js'
+  const dev = 'http://localhost:5173/src/main.js'
+
+  import(localStorage.getItem('dia-dev') === '1' ? dev : release)
 </script>

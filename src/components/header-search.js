@@ -58,16 +58,12 @@ export default class HeaderSearch {
   createTimeline = () => {
     const form = this.input?.closest('form') ?? this.input
     const parts = [form, ...this.closeButtons].filter(Boolean)
-    const speed = this.reducedMotion ? 0 : 1
 
+    // The panel waits at top: -100% (set in Webflow) and slides down by its own height.
     this.timeline = gsap
-      .timeline({
-        paused: true,
-        defaults: { ease: 'power2.out' },
-        onReverseComplete: () => gsap.set(this.panel, { visibility: 'hidden' }),
-      })
-      .fromTo(this.panel, { opacity: 0 }, { opacity: 1, duration: 0.25 * speed })
-      .fromTo(parts, { y: -8, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 * speed, stagger: 0.05 * speed }, '<0.05')
+      .timeline({ paused: true, defaults: { ease: 'power3.out' } })
+      .fromTo(this.panel, { yPercent: 0 }, { yPercent: 100, duration: 0.45 })
+      .fromTo(parts, { y: -8, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, stagger: 0.05 }, '<0.2')
   }
 
   bindEvents = () => {
@@ -111,11 +107,11 @@ export default class HeaderSearch {
 
     this.panel.inert = false
     this.panel.setAttribute('aria-hidden', 'false')
-    // Visible before focus, so the mobile keyboard opens within the tap.
-    gsap.set(this.panel, { visibility: 'visible' })
+    // Focus inside the tap, so the mobile keyboard opens.
     this.input?.focus({ preventScroll: true })
 
-    this.timeline.timeScale(1).play()
+    if (this.reducedMotion) this.timeline.progress(1)
+    else this.timeline.timeScale(1).play()
   }
 
   close = ({ restoreFocus = true } = {}) => {
@@ -129,7 +125,7 @@ export default class HeaderSearch {
     this.panel.setAttribute('aria-hidden', 'true')
     if (restoreFocus) this.lastTrigger?.focus()
 
-    if (this.timeline.progress() === 0) gsap.set(this.panel, { visibility: 'hidden' })
+    if (this.reducedMotion) this.timeline.progress(0)
     else this.timeline.timeScale(1.5).reverse()
   }
 
