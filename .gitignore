@@ -1,0 +1,8 @@
+node_modules/
+.vite/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+# dist/ is committed on purpose: jsDelivr serves it from the Git tag.
