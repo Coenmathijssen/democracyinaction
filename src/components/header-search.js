@@ -61,9 +61,9 @@ export default class HeaderSearch {
 
     // The panel waits at top: -100% (set in Webflow) and slides down by its own height.
     this.timeline = gsap
-      .timeline({ paused: true, defaults: { ease: 'power3.out' } })
-      .fromTo(this.panel, { yPercent: 0 }, { yPercent: 100, duration: 0.45 })
-      .fromTo(parts, { y: -8, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, stagger: 0.05 }, '<0.2')
+      .timeline({ paused: true, defaults: { ease: 'power4.out' } })
+      .fromTo(this.panel, { yPercent: 0 }, { yPercent: 100, duration: 0.35 })
+      .fromTo(parts, { y: -12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.25, stagger: 0.04 }, '<0.15')
   }
 
   bindEvents = () => {

@@ -21,7 +21,7 @@ Lives in the **Navbar** component, so it is on every page that uses it.
 
 ```
 .navbar                                  data-component="header-search"
-  .nav-container                         padding-y 2.9375em (150px at 1512, like Figma), 1.625em at tablet and below
+  .nav-container                         padding-y 1.75em (112px header at 1512), 1em at tablet and below
     .nav-right-wrapper                   gap 5em (0.6667em at tablet and below)
       .nav-menu
       .nav-actions                       gap 1.5em
@@ -44,7 +44,7 @@ Lives in the **Navbar** component, so it is on every page that uses it.
   font-size on `body` (16px at 1512px, fixed 16px at 991px and below), and `html` stays
   16px, so `rem` would not scale. Figma desktop is 1:1 (px / 16 = em); the mobile frame
   is drawn at 1.5x (72px in Figma = 48px). On the input, em is relative to its own
-  font-size, hence values like 2.9091em (64px at 22px).
+  font-size, hence values like 2.3333em (42px at 18px, the same height as the X).
 - Icons are Code Embeds holding filled SVGs (`fill="currentColor"`, viewBox only, no
   strokes), so they take the button's text colour. The SVG has no size of its own:
   the embed's class sets it (`.nav-search-icon` 1.25em, `.nav-search-close-icon` 1.375em).
