@@ -16,6 +16,7 @@ export default class HeaderSearch {
     this.panel = this.element.querySelector('[data-js="search-panel"]')
     if (!this.panel || !this.openButtons.length) return
 
+    this.inner = this.panel.querySelector('[data-js="search-inner"]')
     this.closeButtons = [...this.panel.querySelectorAll('[data-js="search-close"]')]
     this.input = this.panel.querySelector('input[type="search"], input[name="query"]')
     this.opened = false
@@ -63,7 +64,12 @@ export default class HeaderSearch {
     this.timeline = gsap
       .timeline({ paused: true, defaults: { ease: 'power4.out' } })
       .fromTo(this.panel, { yPercent: 0 }, { yPercent: 100, duration: 0.35 })
-      .fromTo(parts, { y: -12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.25, stagger: 0.04 }, '<0.15')
+
+    // The content moves the opposite way at the same pace, so it stays put and the
+    // panel's clipped edge (overflow: hidden) wipes it into view. The logo never moves.
+    if (this.inner) this.timeline.fromTo(this.inner, { yPercent: 100 }, { yPercent: 0, duration: 0.35 }, '<')
+
+    this.timeline.fromTo(parts, { y: -12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.25, stagger: 0.04 }, '<0.15')
   }
 
   bindEvents = () => {

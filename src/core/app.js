@@ -1,6 +1,8 @@
+import HeaderBackdrop from '@/components/header-backdrop'
 import HeaderSearch from '@/components/header-search'
 
 const components = {
+  'header-backdrop': HeaderBackdrop,
   'header-search': HeaderSearch,
 }
 

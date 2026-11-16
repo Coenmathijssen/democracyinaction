@@ -27,7 +27,7 @@ To run the staging site (dia-2af02e.webflow.io) against your local code, enter t
 
     npm run build
     git add dist && git commit -m "Build vX.Y.Z"
-    git tag vX.Y.Z && git push --follow-tags
+    git tag -a vX.Y.Z -m "vX.Y.Z" && git push --follow-tags   # --follow-tags only pushes annotated tags
 
 Then bump the tag in Webflow's custom code (both snippets in
 `webflow-custom-code.html`) and publish to staging first.
