@@ -1,5 +1,5 @@
 /**
- * Header backdrop: when the sticky header sits on top of a hero, the header's
+ * Header backdrop: when the fixed header sits on top of a hero, the header's
  * background shows the hero's own background, cut from the same spot. At the top of
  * the page the two read as one surface, and while scrolling the header keeps the
  * hero's top edge instead of a different image.

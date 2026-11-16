@@ -13,25 +13,31 @@ Element settings > Custom attributes.
   element becomes a combo class, which is easy to style by accident in the
   Designer, and classes get renamed when styles are tidied up.
 - Classes are for styling only and are managed in the Designer. Code never
-  styles by class; the CSS in `src/styles` only handles states that need JS.
+  styles by class; the CSS in `src/styles` only handles what the Designer can't.
+- State classes: code may toggle an `is-*` combo class (like `.nav-container.is-scrolled`)
+  whose styles live in Webflow. It never queries elements by them. To edit one in the
+  Designer, add the combo to the element, style it, and remove it again. Don't run
+  "Clean up unused styles" without keeping these: they look unused in the Designer.
 
 ## Header
 
 The **Navbar** component, on every page.
 
-- `.navbar` is `position: sticky; top: 0`. Sticky keeps the header's space in the
-  page, so content never slides under it, and it sticks for the whole page as long as
-  the Navbar sits directly in `.main-wrapper` (sticky only works inside its parent,
-  and no ancestor may have `overflow: hidden`; `clip` is fine).
+- `.navbar` is `position: fixed` at the top. `.main-wrapper` reserves its full height
+  with `padding-top`, so content starts below it on every page.
 - Header height: 7em on desktop (112px at 1512px), 5.5em from 480 to 991px, 5em at
-  479px and below. A section that should run under the header uses these numbers.
+  479px and below. `.main-wrapper`'s padding-top and the Home hero use these numbers.
+- Once the page scrolls 16px, the **header-scroll** component adds `is-scrolled` to
+  `.nav-container`, which halves its padding (0.875em on desktop, 0.5em at 991px and
+  below, with a 400ms transition on `.nav-container`). The header is fixed and the
+  reserved space doesn't change, so nothing on the page moves.
 
 ### Home hero under the header
 
 On Home the hero's background continues behind the header:
 
 ```
-.main-wrapper
+.main-wrapper                                    padding-top 7em / 5.5em / 5em (the header's space)
   Navbar
   section.section.overflow-hidden.under-header   margin-top -7em / -5.5em / -5em (pulls the hero under the header)
     .section-bg.gradient-home-hero               padding-top 7em / 5.5em / 5em, data-header-backdrop
@@ -43,7 +49,8 @@ and header then read as one surface at the top, and while scrolling the header k
 the hero's top edge. It supports `background-size: cover`, which the hero uses. Pages
 without a `data-header-backdrop` element keep `.navbar-bg`'s own image.
 
-If the header height changes, update the three numbers above and `.under-header`.
+If the header height changes, update these numbers in `.main-wrapper`, `.under-header`
+and `.gradient-home-hero`.
 
 ## Header search
 
@@ -51,7 +58,7 @@ Lives in the **Navbar** component, so it is on every page that uses it.
 
 ```
 .navbar                                  data-component="header-search"
-  .nav-container                         padding-y 1.75em (112px header at 1512), 1em at tablet and below
+  .nav-container                         data-component="header-scroll", padding-y 1.75em (1em at tablet and below), halved with .is-scrolled
     .nav-right-wrapper                   gap 5em (0.6667em at tablet and below)
       .nav-menu
       .nav-actions                       gap 1.5em
