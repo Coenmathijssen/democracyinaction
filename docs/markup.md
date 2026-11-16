@@ -111,10 +111,10 @@ Lives in the **Navbar** component, so it is on every page that uses it.
   (`yPercent: 100`) and moves `.cc-nav-search-inner` the other way at the same pace, so
   the content (logo included) stays in place and the panel's edge wipes it into view.
   To edit it in the Designer, set its top to 0% temporarily and back to -100% after.
-- While the search is open, the code moves `.navbar` along with the visual viewport
-  (inline `transform: translateY`). On iOS the page can still be dragged while the
-  keyboard is up, and that would carry the fixed header out of view. So don't give
-  `.navbar` a transform in the Designer.
+- While the search is open, touch drags don't scroll the page (a non-passive
+  `touchmove` listener cancels them). On iOS a drag with the keyboard up would
+  otherwise pan the visible area and carry the fixed header out of view. Taps and
+  desktop scrolling aren't affected.
 - The label and submit button carry `.cc-nav-search-sr-only`: hidden visually, still
   there for screen readers and for submitting with Enter.
 - The placeholder is set in the Designer (Search Input settings). The short mobile

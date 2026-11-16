@@ -38,7 +38,7 @@ export default class HeaderSearch {
     document.removeEventListener('keydown', this.handleKeydown)
     document.removeEventListener('click', this.handleDocumentClick)
     this.mobileQuery?.removeEventListener('change', this.applyPlaceholder)
-    this.unbindViewport()
+    this.unlockScroll()
   }
 
   setAria = () => {
@@ -112,7 +112,7 @@ export default class HeaderSearch {
     this.lastTrigger = trigger
     this.setExpanded(true)
     document.documentElement.classList.add('cc-search-open')
-    this.bindViewport()
+    this.lockScroll()
 
     this.panel.inert = false
     this.panel.setAttribute('aria-hidden', 'false')
@@ -129,7 +129,7 @@ export default class HeaderSearch {
     this.opened = false
     this.setExpanded(false)
     document.documentElement.classList.remove('cc-search-open')
-    this.unbindViewport()
+    this.unlockScroll()
 
     this.panel.inert = true
     this.panel.setAttribute('aria-hidden', 'true')
@@ -141,26 +141,21 @@ export default class HeaderSearch {
 
   toggle = (trigger) => (this.opened ? this.close() : this.open(trigger))
 
-  // iOS keeps fixed elements on the layout viewport. With the keyboard up, the visible
-  // part of the page (the visual viewport) can still be dragged within it, which carries
-  // the fixed header and the open panel out of view. While the search is open, the
-  // header follows that offset. These listeners only exist while the search is open,
-  // and the viewport only fires them while it moves.
-  bindViewport = () => {
-    window.visualViewport?.addEventListener('scroll', this.pinToViewport)
-    window.visualViewport?.addEventListener('resize', this.pinToViewport)
+  // While the search is open, touch drags don't scroll the page. iOS keeps fixed
+  // elements on the layout viewport, and with the keyboard up a drag pans the visible
+  // part of the page within it, carrying the header and panel out of view. Cancelling
+  // the drag means nothing moves at all. Taps aren't affected, so typing, placing the
+  // caret and tapping outside to close all work. Desktop scrolling (wheel, keys) isn't
+  // touched.
+  lockScroll = () => {
+    document.addEventListener('touchmove', this.preventScroll, { passive: false })
   }
 
-  unbindViewport = () => {
-    window.visualViewport?.removeEventListener('scroll', this.pinToViewport)
-    window.visualViewport?.removeEventListener('resize', this.pinToViewport)
-    this.element.style.transform = ''
+  unlockScroll = () => {
+    document.removeEventListener('touchmove', this.preventScroll)
   }
 
-  pinToViewport = () => {
-    const offset = window.visualViewport.offsetTop
-    this.element.style.transform = offset > 0 ? `translateY(${offset}px)` : ''
-  }
+  preventScroll = (event) => event.preventDefault()
 
   setExpanded = (value) => {
     this.openButtons.forEach((button) => button.setAttribute('aria-expanded', String(value)))
