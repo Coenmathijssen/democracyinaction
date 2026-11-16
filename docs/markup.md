@@ -39,6 +39,10 @@ The **Navbar** component, on every page.
   `power4.out` used by the search panel. The header is fixed and the reserved space
   doesn't change, so nothing on the page moves.
 
+- Both logos (`.nav-brand-logo-link` and `.cc-nav-search-logo`) sit 0.125em (2px) above
+  centre with `position: relative; top: -0.125em`. They are centred mathematically, but
+  the logo's shape makes them look low, so this centres them by eye.
+
 ### Home hero under the header
 
 On Home the hero's background continues behind the header:
@@ -75,7 +79,7 @@ Lives in the **Navbar** component, so it is on every page that uses it.
   .nav-container                             data-component="header-scroll", height 7em / 5.5em / 5em, slimmer with .cc-scrolled
     .nav-right-wrapper                       gap 5em (0.6667em at tablet and below)
       .nav-menu
-      .cc-nav-actions                        gap 1.5em
+      .cc-nav-actions                        gap 1em
         .nav-button-wrapper.for-desktop      CONTACT, height 2.625em like the search button
         .cc-nav-search-button (Link Block)   data-js="search-open"
       .menu-button
@@ -107,6 +111,10 @@ Lives in the **Navbar** component, so it is on every page that uses it.
   (`yPercent: 100`) and moves `.cc-nav-search-inner` the other way at the same pace, so
   the content (logo included) stays in place and the panel's edge wipes it into view.
   To edit it in the Designer, set its top to 0% temporarily and back to -100% after.
+- While the search is open, the code moves `.navbar` along with the visual viewport
+  (inline `transform: translateY`). On iOS the page can still be dragged while the
+  keyboard is up, and that would carry the fixed header out of view. So don't give
+  `.navbar` a transform in the Designer.
 - The label and submit button carry `.cc-nav-search-sr-only`: hidden visually, still
   there for screen readers and for submitting with Enter.
 - The placeholder is set in the Designer (Search Input settings). The short mobile

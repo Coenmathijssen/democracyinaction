@@ -2,7 +2,7 @@
      Site settings > Custom code > Head code (below what's there).
      Bump the tag on each release.
      ============================================================ -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Coenmathijssen/democracyinaction@v0.1.4/dist/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Coenmathijssen/democracyinaction@v0.1.5/dist/main.css">
 
 
 <!-- ============================================================
@@ -12,7 +12,7 @@
      localStorage 'dia-dev' = '1' loads the Vite dev server instead.
      ============================================================ -->
 <script type="module">
-  const release = 'https://cdn.jsdelivr.net/gh/Coenmathijssen/democracyinaction@v0.1.4/dist/main.js'
+  const release = 'https://cdn.jsdelivr.net/gh/Coenmathijssen/democracyinaction@v0.1.5/dist/main.js'
   const dev = 'http://localhost:5173/src/main.js'
 
   import(localStorage.getItem('dia-dev') === '1' ? dev : release)

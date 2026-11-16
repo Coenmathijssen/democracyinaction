@@ -38,6 +38,7 @@ export default class HeaderSearch {
     document.removeEventListener('keydown', this.handleKeydown)
     document.removeEventListener('click', this.handleDocumentClick)
     this.mobileQuery?.removeEventListener('change', this.applyPlaceholder)
+    this.unbindViewport()
   }
 
   setAria = () => {
@@ -111,6 +112,7 @@ export default class HeaderSearch {
     this.lastTrigger = trigger
     this.setExpanded(true)
     document.documentElement.classList.add('cc-search-open')
+    this.bindViewport()
 
     this.panel.inert = false
     this.panel.setAttribute('aria-hidden', 'false')
@@ -127,6 +129,7 @@ export default class HeaderSearch {
     this.opened = false
     this.setExpanded(false)
     document.documentElement.classList.remove('cc-search-open')
+    this.unbindViewport()
 
     this.panel.inert = true
     this.panel.setAttribute('aria-hidden', 'true')
@@ -137,6 +140,27 @@ export default class HeaderSearch {
   }
 
   toggle = (trigger) => (this.opened ? this.close() : this.open(trigger))
+
+  // iOS keeps fixed elements on the layout viewport. With the keyboard up, the visible
+  // part of the page (the visual viewport) can still be dragged within it, which carries
+  // the fixed header and the open panel out of view. While the search is open, the
+  // header follows that offset. These listeners only exist while the search is open,
+  // and the viewport only fires them while it moves.
+  bindViewport = () => {
+    window.visualViewport?.addEventListener('scroll', this.pinToViewport)
+    window.visualViewport?.addEventListener('resize', this.pinToViewport)
+  }
+
+  unbindViewport = () => {
+    window.visualViewport?.removeEventListener('scroll', this.pinToViewport)
+    window.visualViewport?.removeEventListener('resize', this.pinToViewport)
+    this.element.style.transform = ''
+  }
+
+  pinToViewport = () => {
+    const offset = window.visualViewport.offsetTop
+    this.element.style.transform = offset > 0 ? `translateY(${offset}px)` : ''
+  }
 
   setExpanded = (value) => {
     this.openButtons.forEach((button) => button.setAttribute('aria-expanded', String(value)))
