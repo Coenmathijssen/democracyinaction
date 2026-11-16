@@ -1,4 +1,5 @@
 import gsap from 'gsap'
+import { MOBILE_QUERY } from '@/core/breakpoints'
 
 /**
  * Header search: turns the navbar into a full-width search bar.
@@ -109,7 +110,7 @@ export default class HeaderSearch {
     this.opened = true
     this.lastTrigger = trigger
     this.setExpanded(true)
-    document.documentElement.classList.add('is-search-open')
+    document.documentElement.classList.add('cc-search-open')
 
     this.panel.inert = false
     this.panel.setAttribute('aria-hidden', 'false')
@@ -125,7 +126,7 @@ export default class HeaderSearch {
 
     this.opened = false
     this.setExpanded(false)
-    document.documentElement.classList.remove('is-search-open')
+    document.documentElement.classList.remove('cc-search-open')
 
     this.panel.inert = true
     this.panel.setAttribute('aria-hidden', 'true')
@@ -152,7 +153,7 @@ export default class HeaderSearch {
 
     this.longPlaceholder = this.input.placeholder
     this.shortPlaceholder = short
-    this.mobileQuery = window.matchMedia('(max-width: 767px)')
+    this.mobileQuery = window.matchMedia(MOBILE_QUERY)
     this.mobileQuery.addEventListener('change', this.applyPlaceholder)
     this.applyPlaceholder()
   }
