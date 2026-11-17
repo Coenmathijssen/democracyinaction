@@ -149,15 +149,23 @@ Form Block .cc-newsletter                         data-component="newsletter-for
   styleable in the Designer (their "Success" and "Error" states in Form settings).
 - Copy: the success text is the success block's text. Error texts sit on the Form Block
   as custom attributes, one per answer, so wording changes need no release:
-  `data-message-invalid-email`, `data-message-rate-limited`,
+  `data-message-invalid-email`, `data-message-email-refused` (Mailchimp won't take the
+  address again: it bounced or was erased), `data-message-rate-limited`,
   `data-message-verification-failed`, `data-message-unavailable` and
   `data-message-offline` (the request never reached the Worker). An answer without an
   attribute shows the error block's own text.
 - An address that is already subscribed gets the same success as a new one. That is on
   purpose: a separate message would let anyone test whether an address is on the list.
+- The signup carries the page it was sent from (address without query and fragment). The
+  Worker stores it in a Mailchimp audience field (worker/README.md).
 - The button's waiting text is its "Waiting text" setting. While a signup is on its way
   the button is disabled; the dimmed look comes from `src/styles/newsletter-form.css`,
   because the Designer has no disabled state.
+- Webflow's own bot check (site setting) disables every form's button until it has
+  answered, which takes seconds. This form doesn't go through Webflow, so the code keeps
+  its button active. The custom attribute `data-wf-no-turnstile="true"` on the `form`
+  element stops Webflow from loading that check for this form at all. Only set it while
+  the code is live: without the code, the button would stay disabled.
 - The code adds a hidden honeypot field (`website`) to the form. It isn't in the Designer.
 - `.cc-newsletter-input` copies `.cc-nav-search-input` (2.3333em high, 0.6667em radius)
   with a white 10% fill and a 12px backdrop blur for the photo behind it. The button is

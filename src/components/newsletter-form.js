@@ -9,8 +9,11 @@ const TURNSTILE_SCRIPT = 'https://challenges.cloudflare.com/turnstile/v0/api.js?
 // The Worker's answers (worker/src/constants.js), plus one for a request that never got there.
 const SUBSCRIBED = 'subscribed'
 const INVALID_EMAIL = 'invalid_email'
+const EMAIL_REFUSED = 'email_refused'
 const UNAVAILABLE = 'unavailable'
 const OFFLINE = 'offline'
+// Answers about the address itself: the email field is marked and gets the focus.
+const ADDRESS_CODES = [INVALID_EMAIL, EMAIL_REFUSED]
 
 /**
  * Newsletter form: sends the signup to the newsletter Worker (worker/), which adds the
@@ -51,6 +54,7 @@ export default class NewsletterForm {
     this.setAria()
     this.createTimelines()
     this.bindEvents()
+    this.watchSubmit()
   }
 
   destroy = () => {
@@ -59,6 +63,7 @@ export default class NewsletterForm {
     this.form?.removeEventListener('submit', this.handleSubmit)
     this.form?.removeEventListener('focusin', this.handleFirstFocus)
     this.email?.removeEventListener('input', this.clearInvalid)
+    this.submitObserver?.disconnect()
     this.honeypot?.remove()
     this.turnstileElement?.remove()
   }
@@ -107,6 +112,20 @@ export default class NewsletterForm {
     if (this.sitekey) this.form.addEventListener('focusin', this.handleFirstFocus, { once: true })
   }
 
+  // Webflow's form script disables the button until its own bot check has answered,
+  // which takes seconds. That check guards forms Webflow sends itself. This one goes to
+  // the Worker, so the button is only ever disabled while a signup is on its way.
+  watchSubmit = () => {
+    if (!this.submit) return
+    this.submitObserver = new MutationObserver(this.syncSubmit)
+    this.submitObserver.observe(this.submit, { attributes: true, attributeFilter: ['disabled'] })
+    this.syncSubmit()
+  }
+
+  syncSubmit = () => {
+    if (this.submit.disabled !== this.loading) this.submit.disabled = this.loading
+  }
+
   // A failed load is dealt with at submit: the token is then empty.
   handleFirstFocus = () => {
     this.loadTurnstile().catch(() => {})
@@ -139,6 +158,8 @@ export default class NewsletterForm {
         body: JSON.stringify({
           email: this.email?.value ?? '',
           firstName: this.firstName?.value ?? '',
+          // Without the query and the fragment, which can hold tracking or personal data.
+          page: window.location.origin + window.location.pathname,
           website: this.honeypot.value,
           token: await this.takeToken(),
         }),
@@ -159,7 +180,7 @@ export default class NewsletterForm {
     this.form.setAttribute('aria-busy', String(loading))
     if (!this.submit) return
 
-    this.submit.disabled = loading
+    this.syncSubmit()
     // Webflow keeps the button's "waiting" text in data-wait.
     this.submit.value = loading ? this.submit.dataset.wait || this.label : this.label
   }
@@ -180,7 +201,7 @@ export default class NewsletterForm {
     this.message.setAttribute('role', 'alert')
     this.message.textContent = this.getMessage(code)
 
-    if (code === INVALID_EMAIL && this.email) {
+    if (ADDRESS_CODES.includes(code) && this.email) {
       this.email.setAttribute('aria-invalid', 'true')
       this.email.setAttribute('aria-describedby', this.error.id)
       this.email.focus({ preventScroll: true })
