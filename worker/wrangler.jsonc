@@ -1,0 +1,25 @@
+{
+  // No secrets in this file. MAILCHIMP_API_KEY, MAILCHIMP_AUDIENCE_ID and (optional)
+  // TURNSTILE_SECRET are set with `npx wrangler secret put <NAME>`. See README.md.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dia-newsletter",
+  "main": "src/index.js",
+  "compatibility_date": "2026-06-01",
+  "workers_dev": true,
+  "observability": { "enabled": true },
+
+  // 5 signups a minute per visitor IP. namespace_id is a number of our own choosing,
+  // unique within the Cloudflare account.
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 5, "period": 60 }
+    }
+  ],
+
+  "vars": {
+    // Comma-separated Mailchimp tags for every signup through the site. Empty for none.
+    "MAILCHIMP_TAGS": "Website"
+  }
+}

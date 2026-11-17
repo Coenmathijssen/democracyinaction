@@ -6,6 +6,7 @@ Custom JS/CSS for the Democracy in Action Webflow site. Vite builds one bundle,
 - Components: `src/components/`, registered in `src/core/app.js`
 - How markup connects to the code: [docs/markup.md](docs/markup.md)
 - Webflow custom code snippets: [webflow-custom-code.html](webflow-custom-code.html)
+- Newsletter signup: a Cloudflare Worker in `worker/`, deployed on its own. See [worker/README.md](worker/README.md)
 
 ## GSAP
 

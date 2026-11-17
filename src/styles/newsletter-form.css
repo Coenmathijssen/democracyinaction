@@ -1,0 +1,15 @@
+/* Only what the Webflow Designer can't style. Layout and looks live in Webflow classes. */
+
+/* The Designer has no "disabled" state. While a signup is on its way the button dims
+   and its hover is off. */
+[data-component="newsletter-form"] [type="submit"]:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Turnstile's box, added by the code. It only shows when Cloudflare asks the visitor to
+   tick it. */
+[data-js="newsletter-turnstile"] {
+  display: flex;
+  justify-content: center;
+}

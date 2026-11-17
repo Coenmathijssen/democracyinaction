@@ -1,11 +1,13 @@
 import HeaderBackdrop from '@/components/header-backdrop'
 import HeaderScroll from '@/components/header-scroll'
 import HeaderSearch from '@/components/header-search'
+import NewsletterForm from '@/components/newsletter-form'
 
 const components = {
   'header-backdrop': HeaderBackdrop,
   'header-scroll': HeaderScroll,
   'header-search': HeaderSearch,
+  'newsletter-form': NewsletterForm,
 }
 
 class App {

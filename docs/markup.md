@@ -119,3 +119,49 @@ Lives in the **Navbar** component, so it is on every page that uses it.
   there for screen readers and for submitting with Enter.
 - The placeholder is set in the Designer (Search Input settings). The short mobile
   one comes from `data-placeholder-short`.
+
+## Newsletter form
+
+Lives in the **CTA** component (`section#newsletter`), so it is on every page that uses
+it. The **newsletter-form** component sends the signup to the Cloudflare Worker in
+`worker/`, which adds the address to Mailchimp. Setup, checks and answers:
+[worker/README.md](../worker/README.md).
+
+```
+Form Block .cc-newsletter                         data-component="newsletter-form", data-message-* (below)
+  form#newsletter-form .cc-newsletter-form        Action = the Worker's /subscribe URL
+    label .cc-sr-only
+    input#newsletter-first-name                   .cc-newsletter-input, name FNAME, optional
+    label .cc-sr-only
+    input#newsletter-email                        .cc-newsletter-input, name EMAIL, type email, required
+    submit .button-secondary.cc-newsletter-submit
+  success .cc-newsletter-success                  data-js="newsletter-success"
+  error .cc-newsletter-error                      data-js="newsletter-error"
+    div                                           data-js="newsletter-message"
+```
+
+- The form's **Action** (Form settings) is the Worker's URL ending in `/subscribe`. The
+  code posts there itself and stops the submit before Webflow's own form script sees it,
+  so nothing is sent to Webflow and the Form Block's "Send to" settings don't matter.
+  Without an Action the component stays off.
+- Field names are the contract with the code: `EMAIL` and `FNAME`. Don't rename them.
+- The code shows and hides the Form Block's own success and error blocks, so both stay
+  styleable in the Designer (their "Success" and "Error" states in Form settings).
+- Copy: the success text is the success block's text. Error texts sit on the Form Block
+  as custom attributes, one per answer, so wording changes need no release:
+  `data-message-invalid-email`, `data-message-rate-limited`,
+  `data-message-verification-failed`, `data-message-unavailable` and
+  `data-message-offline` (the request never reached the Worker). An answer without an
+  attribute shows the error block's own text.
+- An address that is already subscribed gets the same success as a new one. That is on
+  purpose: a separate message would let anyone test whether an address is on the list.
+- The button's waiting text is its "Waiting text" setting. While a signup is on its way
+  the button is disabled; the dimmed look comes from `src/styles/newsletter-form.css`,
+  because the Designer has no disabled state.
+- The code adds a hidden honeypot field (`website`) to the form. It isn't in the Designer.
+- `.cc-newsletter-input` copies `.cc-nav-search-input` (2.3333em high, 0.6667em radius)
+  with a white 10% fill and a 12px backdrop blur for the photo behind it. The button is
+  the site's `.button-secondary`; the combo `.button-secondary.cc-newsletter-submit` only
+  fits its height to the inputs. At 767px and below the fields and the button stack.
+- Optional: `data-turnstile-sitekey="<site key>"` on the Form Block turns on Cloudflare's
+  bot check. The Worker needs the matching secret first (worker/README.md).

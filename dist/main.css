@@ -1,1 +1,1 @@
-[data-js=search-panel] input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none}
+[data-js=search-panel] input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none}[data-component=newsletter-form] [type=submit]:disabled{opacity:.6;pointer-events:none}[data-js=newsletter-turnstile]{display:flex;justify-content:center}
