@@ -84,8 +84,6 @@ export default class NewsletterForm {
 
   setAria = () => {
     this.error.id ||= 'newsletter-error'
-    this.error.setAttribute('role', 'alert')
-    this.success.setAttribute('role', 'status')
     this.success.tabIndex = -1
   }
 
@@ -177,6 +175,9 @@ export default class NewsletterForm {
   }
 
   showError = (code) => {
+    // Set here and not at init: Webflow's form script resets the roles on its own blocks
+    // when the page loads. An alert is read out by screen readers when it appears.
+    this.message.setAttribute('role', 'alert')
     this.message.textContent = this.getMessage(code)
 
     if (code === INVALID_EMAIL && this.email) {
