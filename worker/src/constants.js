@@ -12,6 +12,8 @@ export const MAX_BODY_BYTES = 4096
 export const MAX_EMAIL_LENGTH = 254
 export const MAX_NAME_LENGTH = 80
 export const MAX_TOKEN_LENGTH = 2048
+// What a Mailchimp text field holds.
+export const MAX_PAGE_LENGTH = 255
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 // Milliseconds.
@@ -24,6 +26,7 @@ export const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile
 export const CODES = {
   SUBSCRIBED: 'subscribed',
   INVALID_EMAIL: 'invalid_email',
+  EMAIL_REFUSED: 'email_refused',
   VERIFICATION_FAILED: 'verification_failed',
   RATE_LIMITED: 'rate_limited',
   UNAVAILABLE: 'unavailable',

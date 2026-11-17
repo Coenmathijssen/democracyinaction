@@ -20,6 +20,9 @@
 
   "vars": {
     // Comma-separated Mailchimp tags for every signup through the site. Empty for none.
-    "MAILCHIMP_TAGS": "Website"
+    "MAILCHIMP_TAGS": "Website",
+    // Merge tag of the Mailchimp audience field (type Text) that gets the page the signup
+    // came from. Create that field in Mailchimp first. Empty to leave the page out.
+    "MAILCHIMP_PAGE_FIELD": "REFERRER"
   }
 }

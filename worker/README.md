@@ -23,6 +23,10 @@ In this order. Mailchimp is only called when everything before it passed.
 5. **Email.** Trimmed, lowercased, at most 254 characters, one pattern check.
 6. **Turnstile.** Only when the `TURNSTILE_SECRET` secret is set. See below.
 
+The form also sends the page it is on. The Worker keeps it only when it is a page of the
+site that sent the request, and drops the query and the fragment, so no tracking or
+personal data from a link ends up in Mailchimp. See "Change things" for the field.
+
 ## Answers
 
 The Worker answers `{ "ok": true | false, "code": "…" }` with a code, never with
@@ -33,24 +37,37 @@ the email address.
 | Code | HTTP | When |
 | --- | --- | --- |
 | `subscribed` | 200 | New address, already on the list, re-subscribed, or a filled honeypot |
-| `invalid_email` | 400 | Fails the check, or Mailchimp rejects the address as fake |
+| `invalid_email` | 400 | Fails the check, or Mailchimp rejects the address |
+| `email_refused` | 409 | Mailchimp won't take this address again: it bounced, or it was erased |
 | `verification_failed` | 400, 403, 405 | Wrong origin, not a JSON post, or Turnstile fails |
 | `rate_limited` | 429 | More than 5 tries in a minute |
 | `unavailable` | 500, 502, 503 | Mailchimp error or timeout, or a secret is missing |
 
-One success for every case is on purpose: a separate "you're already subscribed" would
-let anyone test whether an address is on the list.
+The form reads the code, not the HTTP status. The statuses are there for the browser's
+network tab and the Worker log.
+
+One success for a new address and for one that is already on the list is on purpose: a
+separate "you're already subscribed" would let anyone test whether an address is on the
+list. `email_refused` is the one exception. It tells the visitor that the address can't
+be added, because a success would leave them waiting for an email that never comes.
 
 How Mailchimp's replies are handled (`src/mailchimp.js`):
 
-- `Member Exists`: success.
-- `Member In Compliance State` (unsubscribed earlier): set back to `pending` with a
-  `PUT`, which sends a fresh confirmation email.
-- `Forgotten Email Not Subscribed` (erased under GDPR; the API can't re-add them):
-  logged, answered as success.
-- `Invalid Resource`: `invalid_email` when Mailchimp blames the address. Otherwise it is
-  logged and answered as `unavailable`. A required audience field would cause that, so
-  keep every field except the email optional in Mailchimp.
+- `Member Exists`: Mailchimp says this for every member, also one who unsubscribed. The
+  Worker looks up the member's status. `subscribed` and `pending` need nothing: success.
+  (Mailchimp sends no second confirmation email to a pending address.) Any other status
+  is set back to `pending` with a `PUT`, which sends a fresh confirmation email, so the
+  person opts in again themselves.
+- `Member In Compliance State`: the same `PUT`. If Mailchimp refuses that too (a bounced
+  address): `email_refused`.
+- `Forgotten Email Not Subscribed` (erased under GDPR; only Mailchimp's own signup form
+  can add them again): `email_refused`.
+- `Invalid Resource`: `invalid_email`, unless Mailchimp names another field than the
+  email. Then it is logged, tried once more without the page, and otherwise answered as
+  `unavailable`. A required audience field would cause that, so keep every field except
+  the email optional in Mailchimp.
+- An address that signed up to many lists in a short time is held back by Mailchimp for
+  a day or two: `unavailable`, so the visitor is asked to try again later.
 
 ## Set up and deploy
 
@@ -114,6 +131,10 @@ signup on staging right after turning it on.
 - **Allowed sites:** `ALLOWED_ORIGINS` in `src/constants.js`, then `npx wrangler deploy`.
 - **Tag:** signups get the Mailchimp tag `Website` (`MAILCHIMP_TAGS` in
   `wrangler.jsonc`, comma-separated, empty for none).
+- **Signup page:** the page a signup came from goes into the audience field with the
+  merge tag `REFERRER` (`MAILCHIMP_PAGE_FIELD` in `wrangler.jsonc`, empty to leave it
+  out). Create it in Mailchimp under Audience > Settings > Audience fields and merge
+  tags: type Text, not required, tag `REFERRER`. Only new signups get it.
 - **Own domain:** if the domain's DNS is on Cloudflare, add a route such as
   `api.democracyinaction.eu/subscribe` in `wrangler.jsonc` and update the form's Action.
 
@@ -130,5 +151,5 @@ signup on staging right after turning it on.
     src/turnstile.js    token check
     src/respond.js      success() and failure()
     src/constants.js    allowed sites, limits, codes
-    wrangler.jsonc      name, rate limit, tag (no secrets)
+    wrangler.jsonc      name, rate limit, tag, page field (no secrets)
     test/               npm test

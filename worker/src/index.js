@@ -5,6 +5,7 @@ import {
   MAX_BODY_BYTES,
   MAX_EMAIL_LENGTH,
   MAX_NAME_LENGTH,
+  MAX_PAGE_LENGTH,
   SUBSCRIBE_PATH,
 } from './constants.js'
 import * as mailchimp from './mailchimp.js'
@@ -19,6 +20,9 @@ import * as turnstile from './turnstile.js'
  * The cheap checks run first; Mailchimp is only called for a request that passed them all.
  * Setup and the response codes: worker/README.md.
  */
+
+// The HTTP status of a failed signup. Any other code is Mailchimp's or the Worker's own: 502.
+const FAILURE_STATUS = { [CODES.INVALID_EMAIL]: 400, [CODES.EMAIL_REFUSED]: 409 }
 
 const corsHeaders = (origin) => ({ 'Access-Control-Allow-Origin': origin, Vary: 'Origin' })
 
@@ -57,6 +61,18 @@ const normalizeEmail = (value) => {
 }
 
 const normalizeName = (value) => (typeof value === 'string' ? value.trim().slice(0, MAX_NAME_LENGTH) : '')
+
+// The page the signup came from. Only a page of the site that sent the request counts,
+// and without its query and fragment, which can hold tracking or personal data.
+const normalizePage = (value, origin) => {
+  if (typeof value !== 'string') return ''
+  try {
+    const url = new URL(value)
+    return url.origin === origin ? `${url.origin}${url.pathname}`.slice(0, MAX_PAGE_LENGTH) : ''
+  } catch {
+    return ''
+  }
+}
 
 // The binding counts per Cloudflare location and is approximate, which is enough to
 // stop one visitor from hammering the form. Without the binding nothing is limited.
@@ -108,9 +124,13 @@ const handle = async (request, env) => {
     return failure(CODES.UNAVAILABLE, 503, cors)
   }
 
-  const code = await mailchimp.subscribe(env, { email, firstName: normalizeName(body.firstName) })
+  const code = await mailchimp.subscribe(env, {
+    email,
+    firstName: normalizeName(body.firstName),
+    page: normalizePage(body.page, origin),
+  })
   if (code === CODES.SUBSCRIBED) return success(cors)
-  return failure(code, code === CODES.INVALID_EMAIL ? 400 : 502, cors)
+  return failure(code, FAILURE_STATUS[code] ?? 502, cors)
 }
 
 export default {
